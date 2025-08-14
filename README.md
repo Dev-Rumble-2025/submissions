@@ -1,4 +1,4 @@
-#DevRumble 2025 - Submissions
+# DevRumble 2025 - Submissions
 
 Welcome teams! This repository is where you will submit your final code for DevRumble 2025. Please follow the instructions carefully to ensure your submission is correct.
 
@@ -13,7 +13,7 @@ app.js
 
 Make sure all your project files are inside your team folder.
 
-Important Rule: Push Only Once
+**Important Rule: Push Only Once**
 
 * Do not push your code before it is fully completed.
 * Only one push per team is allowed, containing all final project files.
