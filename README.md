@@ -22,52 +22,43 @@ Make sure all your project files are inside your team folder.
 
 How to Submit Your Code:
 
-### Step 1: Work Locally
 
-* Create a folder on your computer with your team name.
-* Add your project files and start coding.
-* No GitHub required at this stage.
+#  Final Submission Guide
 
-### Step 2: Install Git (if not already installed)
+Follow these steps exactly to submit your project.
 
-* Check by running: git --version
-* If not installed, download and install: [https://git-scm.com/downloads](https://git-scm.com/downloads)
+---
 
-### Step 3: Initialize Git in Your Project Folder
-
+## 1️⃣ Set Your Git Info (Only Once)
 ```bash
-cd path/to/your/project
-git init
-git add .
-git commit -m "Final project submission"
+git config --global user.email "your@email.com"
+git config --global user.name "Your Name"
 ```
 
-### Step 4: Connect to GitHub Repository
+## 2️⃣ Create Your Project README.md
+### TEAM_NAME
+**Members**: Name1, Name2, ......
 
-```bash
-git remote add origin https://github.com/dev-rumble-2025/submissions.git
+**Live Demo (optional) **: [https://your-project-link.com](https://your-project-link.com)
+
+**How to Run**:  
+1. Install: `npm install` OR `pip install -r requirements.txt`  
+2. Run: `npm start` OR `python app.py`
+
+## 3️⃣ Submit Your Project
+
 ```
+# Clone submissions repo
+git clone https://github.com/YOUR-ORG/submissions.git
+cd submissions
 
-### Step 5: Create Your Team Branch
+# Add your team folder
+mkdir TEAM_NAME
+cp -r ../YOUR_PROJECT/* TEAM_NAME/   # Windows: xcopy /E ../YOUR_PROJECT TEAM_NAME
 
-* Push to a branch named after your team:
+# Push to GitHub
+git add TEAM_NAME
+git commit -m "Final submission: TEAM_NAME"
+git push origin main
 
-```bash
-git checkout -b Team_YourTeamName
-```
 
-### Step 6: Push Your Final Code
-
-```bash
-git push -u origin Team_YourTeamName
-```
-
-* Important: Only push once, after your project is fully completed.
-
-### Notes for Beginners
-
-* If you prefer a GUI instead of terminal commands, use GitHub Desktop ([https://desktop.github.com/](https://desktop.github.com/)).
-* Double-check your folder name and ensure all files are inside.
-* Only the final project files should be pushed.
-
-Good luck! Happy coding, and may the best team win! 🏆
