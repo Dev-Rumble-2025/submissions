@@ -12,7 +12,7 @@ Learn-z is a next-generation, Gen-Z-focused learning platform that combines **fu
 - 💬 **Real-Time Communication** – Chat, connect, and collaborate with peers and mentors.  
 - 📚 **Course Management** – Easily browse and enroll in subjects of your choice.  
 
----
+---  
 
 ## 🛠️ Tech Stack
 
