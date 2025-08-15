@@ -55,6 +55,8 @@ cd submissions
 # Add your team folder
 mkdir TEAM_NAME
 cp -r ../YOUR_PROJECT/* TEAM_NAME/   # Windows: xcopy /E ../YOUR_PROJECT TEAM_NAME
+     OR
+You can copy and paste manually
 
 # Push to GitHub
 git add TEAM_NAME
