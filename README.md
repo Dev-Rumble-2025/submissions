@@ -47,20 +47,38 @@ git config --global user.name "Your Name"
 
 ## 3️⃣ Submit Your Project
 
+
+### Clone submissions repo
 ```
-# Clone submissions repo
 git clone https://github.com/YOUR-ORG/submissions.git
 cd submissions
-
-# Add your team folder
+```
+### Add your team folder
+```
 mkdir TEAM_NAME
 cp -r ../YOUR_PROJECT/* TEAM_NAME/   # Windows: xcopy /E ../YOUR_PROJECT TEAM_NAME
-     OR
+```
+#### OR 
 You can copy and paste manually
 
-# Push to GitHub
+### Push to GitHub
+```
 git add TEAM_NAME
 git commit -m "Final submission: TEAM_NAME"
 git push origin main
+
+```
+## Your Project folder structure must look like this:
+```
+submissions/
+└── TEAM_NAME/
+    ├── README.md
+    ├── LIVE_LINK.txt(if deployed)
+    ├── src/
+    └── package.json
+
+```
+
+
 
 
