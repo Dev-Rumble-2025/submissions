@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Teacher — Roster</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#0f2a5f;--muted:#64748b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins, sans-serif;background:#f8fafc;color:#0f1724}
+  .navbar{background:linear-gradient(90deg,var(--blue),#0b1f47);color:white;padding:12px 20px}
+  .container{max-width:1000px;margin:18px auto;padding:0 16px}
+  .card{background:white;border-radius:12px;padding:14px;box-shadow:0 6px 24px rgba(11,20,40,0.04);border:1px solid #eef2f7}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #f1f5f9;text-align:left}
+  .btn{background:var(--blue);color:white;padding:8px 10px;border:none;border-radius:8px;cursor:pointer}
+  .small{color:var(--muted)}
+</style>
+</head>
+<body>
+  <header class="navbar"><div style="font-weight:700">Class Roster</div></header>
+  <main class="container">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:0">Students</h2>
+        <div>
+          <button onclick="exportCSV()" class="btn">Export CSV</button>
+          <button onclick="addSampleStudent()" style="margin-left:8px" class="btn">Add Student</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <table id="rosterTable"><thead><tr><th>LCID</th><th>Name</th><th>Email</th><th>Attendance</th><th>Actions</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </main>
+
+<script>
+  let roster = JSON.parse(localStorage.getItem('tc_roster')||'[]');
+
+  function render(){
+    const tbody = document.querySelector('#rosterTable tbody'); tbody.innerHTML='';
+    roster.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${s.id||''}</td><td>${s.name||''}</td><td>${s.email||''}</td>
+        <td><input type="checkbox" ${s.attendance?'checked':''} onchange='toggleAtt("${s.id}")' /></td>
+        <td><button onclick='removeStudent("${s.id}")'>Remove</button></td>`;
+      tbody.appendChild(tr);
+    });
+    if(roster.length===0) tbody.innerHTML='<tr><td colspan="5" class="small">No students in roster</td></tr>';
+  }
+
+  function toggleAtt(id){
+    const s = roster.find(x=>x.id===id);
+    if(!s) return;
+    s.attendance = !s.attendance;
+    localStorage.setItem('tc_roster', JSON.stringify(roster));
+    render();
+  }
+
+  function removeStudent(id){
+    roster = roster.filter(x=>x.id!==id);
+    localStorage.setItem('tc_roster', JSON.stringify(roster));
+    render();
+  }
+
+  function addSampleStudent(){
+    const id = 's'+(Math.floor(Math.random()*900)+100);
+    roster.push({id, name:'Student '+id, email:id+'@example.edu', attendance:false});
+    localStorage.setItem('tc_roster', JSON.stringify(roster));
+    render();
+  }
+
+  function exportCSV(){
+    if(roster.length===0){ alert('Roster empty'); return; }
+    const header = ['LCID','Name','Email','Attendance'];
+    const rows = roster.map(r=>[r.id,r.name,r.email,r.attendance? 'Present':'Absent']);
+    const csv = [header, ...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+    const a = document.createElement('a'); a.href=url; a.download='roster.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+
+  render();
+</script>
+</body>
+</html>

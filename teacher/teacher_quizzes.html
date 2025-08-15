@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Teacher — Manage Quizzes (Connected)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#0f2a5f;--muted:#64748b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins, sans-serif;background:#f8fafc;color:#0f1724}
+  .navbar{background:linear-gradient(90deg,var(--blue),#0b1f47);color:white;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+  .container{max-width:1100px;margin:18px auto;padding:0 16px}
+  .card{background:white;border-radius:12px;padding:14px;box-shadow:0 6px 24px rgba(11,20,40,0.04);border:1px solid #eef2f7}
+  .list{margin-top:12px}
+  .quiz-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid #f1f5f9;margin-bottom:8px}
+  .btn{background:var(--blue);color:white;padding:8px 10px;border:none;border-radius:8px;cursor:pointer}
+  input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef7}
+</style>
+</head>
+<body>
+  <header class="navbar">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="width:36px;height:36px;border-radius:10px;background:white;color:#0f2a5f;display:grid;place-items:center;font-weight:900">TC</div>
+      <div style="font-weight:700">Manage Quizzes</div>
+    </div>
+    <nav style="display:flex;gap:12px">
+      <a href="teacher_dashboard.html" style="color:white;text-decoration:none">Dashboard</a>
+      <a href="teacher_quizzes.html" style="color:white;text-decoration:none">Quizzes</a>
+      <a href="teacher_tasks.html" style="color:white;text-decoration:none">Assignments</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h2 style="margin-top:0">Create Quiz (sends to students)</h2>
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:12px;margin-top:12px">
+        <div>
+          <label>Title</label>
+          <input id="qTitle" />
+          <label style="margin-top:8px">Description</label>
+          <textarea id="qDesc" rows="3"></textarea>
+          <label style="margin-top:8px">Status</label>
+          <select id="qStatus"><option value="upcoming">Upcoming</option><option value="active">Active</option><option value="past">Past</option></select>
+          <label style="margin-top:8px">Reward (coins)</label>
+          <input id="qReward" type="number" value="10" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button id="createQ" class="btn">Create & Publish</button>
+          <button id="clearQ" style="background:#fff;border:1px solid #e6eef7;padding:8px;border-radius:8px">Clear</button>
+          <div style="margin-top:auto;color:var(--muted)">This will publish to both teacher and student lists and notify students.</div>
+        </div>
+      </div>
+
+      <div class="list" id="quizList"></div>
+    </div>
+  </main>
+
+<script>
+/* --- Storage keys:
+     Teacher-only: tc_quizzes
+     Shared (students): cc_quizzes
+     Shared notifications: cc_notifications (array of objects {id,text,at})
+*/
+function safeParse(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } }
+
+// Load
+let quizzes = safeParse('tc_quizzes', []);
+let sharedQuizzes = safeParse('cc_quizzes', safeParse('tc_quizzes', []));
+
+// Utility: save teacher and shared, and push notification
+function saveQuizBoth(q){
+  // teacher list
+  quizzes.push(q);
+  localStorage.setItem('tc_quizzes', JSON.stringify(quizzes));
+
+  // shared list for students
+  const shared = safeParse('cc_quizzes', []);
+  shared.push(q);
+  localStorage.setItem('cc_quizzes', JSON.stringify(shared));
+
+  // add a shared notification for students
+  const notifs = safeParse('cc_notifications', []);
+  notifs.push({id:'n'+Date.now(), text:`New quiz published: ${q.title}`, at: Date.now()});
+  localStorage.setItem('cc_notifications', JSON.stringify(notifs));
+}
+
+// Render teacher list (simple)
+function render(){
+  const list = document.getElementById('quizList'); list.innerHTML='';
+  if(quizzes.length===0) list.innerHTML='<div style="color:#64748b">No quizzes yet.</div>';
+  quizzes.forEach(q=>{
+    const div = document.createElement('div'); div.className='quiz-item';
+    div.innerHTML = `<div><div style="font-weight:600">${q.title}</div><div style="color:#64748b">${q.description||''}</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="font-size:0.9rem;color:#0f2a5f">${q.status}</div>
+        <button onclick='editQuiz("${q.id}")' style="padding:6px;border-radius:6px;border:1px solid #e6eef7;background:#fff">Edit</button>
+        <button onclick='deleteQuiz("${q.id}")' style="padding:6px;border-radius:6px;border:1px solid #fde2e2;background:#fff">Delete</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('createQ').addEventListener('click', ()=>{
+  const t = document.getElementById('qTitle').value.trim();
+  if(!t) return alert('Title required');
+  const q = {id:'q'+Date.now(), title:t, description:document.getElementById('qDesc').value.trim(), status:document.getElementById('qStatus').value, reward: Number(document.getElementById('qReward').value||0), createdAt:Date.now()};
+  saveQuizBoth(q);
+  render();
+  // Clear form
+  document.getElementById('qTitle').value=''; document.getElementById('qDesc').value=''; document.getElementById('qReward').value='10';
+});
+
+// Edit / Delete keep both namespaces consistent
+function deleteQuiz(id){
+  quizzes = quizzes.filter(x=>x.id!==id);
+  localStorage.setItem('tc_quizzes', JSON.stringify(quizzes));
+  // remove from shared
+  const shared = safeParse('cc_quizzes', []).filter(x=>x.id!==id);
+  localStorage.setItem('cc_quizzes', JSON.stringify(shared));
+  // push a notification about removal (optional)
+  render();
+}
+function editQuiz(id){
+  const q = quizzes.find(x=>x.id===id); if(!q) return;
+  const newTitle = prompt('Edit title', q.title); if(newTitle===null) return;
+  q.title = newTitle;
+  // persist teacher list
+  localStorage.setItem('tc_quizzes', JSON.stringify(quizzes));
+  // update shared
+  const shared = safeParse('cc_quizzes', []).map(x=> x.id===id ? q : x );
+  localStorage.setItem('cc_quizzes', JSON.stringify(shared));
+  // notify students
+  const notifs = safeParse('cc_notifications', []);
+  notifs.push({id:'n'+Date.now(), text:`Quiz updated: ${q.title}`, at:Date.now()});
+  localStorage.setItem('cc_notifications', JSON.stringify(notifs));
+  render();
+}
+
+render();
+
+// OPTIONAL: if you want teacher page to update when student or other teacher tabs change shared lists:
+window.addEventListener('storage', (e)=>{
+  if(e.key === 'tc_quizzes' || e.key === 'cc_quizzes' || e.key === 'cc_notifications'){
+    // reload local teacher copy for safety
+    quizzes = safeParse('tc_quizzes', quizzes);
+    render();
+  }
+});
+</script>
+</body>
+</html>

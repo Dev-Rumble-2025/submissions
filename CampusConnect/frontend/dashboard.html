@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CollegeConnect — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.js"></script>
+  <style>
+    :root{--blue:#0f2a5f;--blue-2:#0b1f47;--muted:#64748b;--card:#fff}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{font-family:'Poppins',sans-serif;margin:0;background:#f8fafc;color:#0f1724}
+    header{background:linear-gradient(90deg,var(--blue),var(--blue-2));color:white;position:sticky;top:0;z-index:40}
+    .nav{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700}
+    .logo-box{height:36px;width:36px;border-radius:10px;background:rgba(255,255,255,0.95);color:var(--blue);display:grid;place-items:center;font-weight:900}
+    .navlinks{display:flex;gap:8px}
+    .navlinks button{background:transparent;border:none;color:white;padding:8px 10px;border-radius:10px;cursor:pointer}
+    .navlinks button:hover{background:rgba(255,255,255,0.06)}
+    .right{display:flex;gap:10px;align-items:center}
+
+    .container{max-width:1200px;margin:20px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+    .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 4px 18px rgba(12,20,40,0.04);border:1px solid #eef2f7}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .stat{padding:12px;border-radius:12px;background:var(--card);box-shadow:0 2px 8px rgba(12,16,32,0.03)}
+    .stat .label{font-size:0.9rem;color:var(--muted)}
+    .stat .value{font-size:1.5rem;font-weight:700;margin-top:6px}
+
+    .chart-wrap{height:220px}
+    .perks li{margin-bottom:8px}
+    .small-muted{font-size:0.9rem;color:var(--muted)}
+
+    .coin-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);padding:6px 12px;border-radius:999px}
+    .coin-delta{position:relative}
+    .delta-float{position:absolute;right:-8px;top:-14px;color:#facc15;font-weight:700;animation:floatUp 1.1s ease forwards}
+    @keyframes floatUp{0%{opacity:0;transform:translateY(8px) scale(0.9)}20%{opacity:1;transform:translateY(-4px) scale(1)}100%{opacity:0;transform:translateY(-28px) scale(1)}}
+
+    /* responsive */
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} .stats{grid-template-columns:repeat(1,1fr)} .navlinks{display:none} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo-box">CC</div>
+        <div style="font-weight:700">CollegeConnect</div>
+        <nav class="navlinks" aria-label="Top navigation">
+          <button onclick="location.href='dashboard.html'">Dashboard</button>
+          <button onclick="location.href='quizzes.html'">Quizzes</button>
+          <button onclick="location.href='tasks.html'">Tasks</button>
+          <button onclick="location.href='chat.html'">Chat</button>
+          <button onclick="location.href='profile.html'">Profile</button>
+        </nav>
+      </div>
+
+      <div class="right">
+        <button id="notifBtn" style="background:transparent;border:none;color:white;padding:8px;border-radius:999px;cursor:pointer;position:relative">🔔
+          <span id="notifBadge" style="position:absolute;right:4px;top:4px;width:8px;height:8px;background:#f43f5e;border-radius:50%;display:none"></span>
+        </button>
+        <div id="notifList"></div>
+
+
+        <div class="coin-pill" id="coinPill">
+          <div>🪙</div>
+          <div id="coinValue" style="font-weight:700">0</div>
+          <div class="coin-delta" id="coinDeltaContainer"></div>
+        </div>
+
+        <div style="position:relative">
+          <button id="acctBtn" style="background:rgba(255,255,255,0.08);border:none;padding:6px 10px;border-radius:999px;color:white;cursor:pointer">👤 Account</button>
+          <div id="acctMenu" style="display:none;position:absolute;right:0;top:42px;background:white;padding:6px;border-radius:10px;box-shadow:0 6px 24px rgba(12,20,40,0.08)">
+            <button onclick="location.href='profile.html'" style="display:block;border:none;background:none;padding:8px;border-radius:8px;cursor:pointer">Profile</button>
+            <button onclick="alert('Demo: sign out')" style="display:block;border:none;background:none;padding:8px;border-radius:8px;cursor:pointer">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <section>
+        <div class="stats card" style="margin-bottom:12px">
+          <div class="stat"><div class="label">Attendance</div><div class="value">92%</div></div>
+          <div class="stat"><div class="label">Assignments</div><div class="value">7 / 8</div></div>
+          <div class="stat"><div class="label">Avg. Quiz Score</div><div class="value">86%</div></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Weekly Coins Earned</h3>
+            <button id="claimBtn" class="btn-claim" style="background:var(--blue);color:white;border:none;padding:8px 12px;border-radius:10px;cursor:pointer">Claim +10</button>
+          </div>
+          <div class="chart-wrap" style="margin-top:12px">
+            <canvas id="coinsChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div>📅</div><h3 style="margin:0">Upcoming</h3></div>
+          <ul style="list-style:none;padding:0;margin:0">
+            <li style="padding:10px 0;border-bottom:1px solid #f1f5f9">➡ Quiz: Data Structures – ends today 5:00 PM</li>
+            <li style="padding:10px 0;border-bottom:1px solid #f1f5f9">➡ OS Lab Report – due tomorrow</li>
+            <li style="padding:10px 0;">➡ Discrete Math Midterm – next week</li>
+          </ul>
+        </div>
+      </section>
+
+      <aside>
+        <div class="card perks">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div>🏆</div><h3 style="margin:0">Redeemable Perks</h3></div>
+          <ul style="padding-left:16px;margin:0">
+            <li>Priority Library Booking</li>
+            <li>Cafeteria Discounts</li>
+            <li>College Merchandise</li>
+            <li>Premium Workshops</li>
+            <li>Project Credits</li>
+          </ul>
+<button
+  onclick="window.location.href='store.html'"
+  style="margin-top:12px;width:100%;background:var(--blue);color:white;border:none;padding:10px;border-radius:10px;cursor:pointer"
+  aria-label="Open Store"
+>
+  Open Store
+</button>
+
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div>🛡</div><h3 style="margin:0">Security & Scaling</h3></div>
+          <ul style="margin:0;padding-left:16px;color:var(--muted)">
+            <li>Real-time via WebSockets / SSE for chat & coins</li>
+            <li>Face data processed on-device</li>
+            <li>Rate limit + JWT + CSRF protection</li>
+            <li>Queue workers for heavy tasks</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer style="text-align:center;padding:12px;color:#94a3b8;border-top:1px solid #eef6fb">© <span id="year"></span> CollegeConnect • Demo</footer>
+
+  <script>
+    // Ensure lucide replaces icons (we used emoji but keep available)
+    if(window.lucide) setTimeout(()=>window.lucide.createIcons(),50);
+
+    // helpers: localStorage-backed state
+    function getUser(){ return JSON.parse(localStorage.getItem('cc_user') || '{"id":"u123","name":"Biswas"}'); }
+    function getCoins(){ return Number(localStorage.getItem('cc_coins')||'0'); }
+    function setCoins(n){ localStorage.setItem('cc_coins', String(n)); document.getElementById('coinValue').innerText = n; }
+    function pushNotif(text){ const n = JSON.parse(localStorage.getItem('cc_notifications')||'[]'); n.unshift({id:'n'+Date.now(),text, time:Date.now()}); localStorage.setItem('cc_notifications', JSON.stringify(n)); updateNotifBadge(); }
+    function updateNotifBadge(){ const n = JSON.parse(localStorage.getItem('cc_notifications')||'[]'); document.getElementById('notifBadge').style.display = n.length? 'block':'none'; }
+
+    // init
+    document.getElementById('year').innerText = new Date().getFullYear();
+    document.getElementById('coinValue').innerText = getCoins();
+
+    // chart
+    const ctx = document.getElementById('coinsChart').getContext('2d');
+    const data = {
+      labels: ['W1','W2','W3','W4','W5'],
+      datasets: [{ label:'Coins', data: [40,55,90,80,110], borderColor:'#0f2a5f', tension:0.4, fill:true, backgroundColor:'rgba(15,42,95,0.08)', pointRadius:0 }]
+    };
+    const coinsChart = new Chart(ctx, { type:'line', data, options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }});
+
+    // Account menu toggle
+    document.getElementById('acctBtn').addEventListener('click', ()=>{
+      const el = document.getElementById('acctMenu'); el.style.display = el.style.display==='block' ? 'none' : 'block';
+    });
+
+    // Claim button logic + animation
+    document.getElementById('claimBtn').addEventListener('click', ()=>{
+      const delta = 10;
+      let c = getCoins(); c += delta; setCoins(c); pushNotif('Claimed +'+delta+' coins (Dashboard streak)');
+      // floating +10
+      const cont = document.getElementById('coinDeltaContainer');
+      const el = document.createElement('div'); el.className='delta-float'; el.textContent='+'+delta; cont.appendChild(el);
+      setTimeout(()=>{ el.remove(); }, 1200);
+    });
+
+    // notifications
+    document.getElementById('notifBtn').addEventListener('click', ()=>{
+      const n = JSON.parse(localStorage.getItem('cc_notifications')||'[]');
+      if(n.length===0){ alert('No notifications'); return; }
+      const text = n.map(x=>('- '+new Date(x.time).toLocaleString()+': '+x.text)).join('\n\n');
+      alert(text);
+    });
+
+    // show badge
+    updateNotifBadge();
+    
+  </script>
+</body>
+</html>

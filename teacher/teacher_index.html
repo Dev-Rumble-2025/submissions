@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CollegeConnect — Teacher Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#0f2a5f;--muted:#64748b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins, sans-serif;background:linear-gradient(#f7fafc,#f0f4f8);display:grid;place-items:center;height:100vh;color:#0f1724;padding:16px}
+  .card{background:#fff;padding:28px;border-radius:12px;max-width:760px;width:100%;box-shadow:0 8px 30px rgba(11,20,40,0.06);display:grid;grid-template-columns:1fr 380px;gap:20px}
+  .brand{display:flex;flex-direction:column;gap:12px}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-box{width:56px;height:56px;border-radius:12px;background:#fff;color:var(--blue);display:grid;place-items:center;font-weight:900}
+  .lead{color:rgba(15,23,36,0.9)}
+  .form{display:flex;flex-direction:column;gap:10px}
+  input,select{padding:10px;border-radius:10px;border:1px solid #e6eef7}
+  .btn{background:var(--blue);color:#fff;border:none;padding:10px;border-radius:10px;cursor:pointer;font-weight:600}
+  .secondary{background:#fff;border:1px solid #e6eef7}
+  @media(max-width:880px){ .card{grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <div class="card" role="main">
+    <div class="brand">
+      <div class="logo">
+        <div class="logo-box">TC</div>
+        <div style="font-weight:700">CollegeConnect — Teacher</div>
+      </div>
+      <h2 style="margin:0">Instructor portal</h2>
+      <p class="lead" style="margin:0">Manage classes, quizzes, assignments, and student rosters from here.</p>
+      <div style="margin-top:auto;color:var(--muted);font-size:0.9rem">Sessions persist locally (demo). Use the buttons on the right to enter the interface.</div>
+    </div>
+
+    <div class="form" aria-label="Login area">
+      <label style="font-weight:600">Email</label>
+      <input id="email" type="email" value="teacher@example.edu" />
+      <label style="font-weight:600">Employee ID</label>
+      <input id="empid" type="text" value="T1001" />
+      <div style="display:flex;gap:10px">
+        <button id="loginBtn" class="btn" style="flex:1">Sign in</button>
+        <button id="guestBtn" class="btn secondary" style="flex:1">Continue as Guest</button>
+      </div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-top:6px">Demo: this creates a local teacher session and redirects to the dashboard.</div>
+    </div>
+  </div>
+
+<script>
+(function initDefaults(){
+  // teacher defaults (do not override existing)
+  if(!localStorage.getItem('tc_user')) localStorage.setItem('tc_user', JSON.stringify({id:'t1001',name:'Prof. Rao'}));
+  if(!localStorage.getItem('tc_quizzes')) localStorage.setItem('tc_quizzes', JSON.stringify([]));
+  if(!localStorage.getItem('tc_assignments')) localStorage.setItem('tc_assignments', JSON.stringify([]));
+  if(!localStorage.getItem('tc_roster')) {
+    const sample=[{id:'s101',name:'Aarav Sharma',email:'aarav@example.edu'},{id:'s102',name:'Sita Kumari',email:'sita@example.edu'}];
+    localStorage.setItem('tc_roster', JSON.stringify(sample));
+  }
+  if(!localStorage.getItem('tc_announcements')) localStorage.setItem('tc_announcements', JSON.stringify([]));
+})();
+
+document.getElementById('loginBtn').addEventListener('click', ()=>{
+  const email = document.getElementById('email').value.trim()||'teacher@example.edu';
+  const empid = document.getElementById('empid').value.trim()||('t'+(Math.floor(Math.random()*9000)+100));
+  const user = {id: empid, name: email.split('@')[0]};
+  localStorage.setItem('tc_user', JSON.stringify(user));
+  location.href='teacher_dashboard.html';
+});
+document.getElementById('guestBtn').addEventListener('click', ()=> location.href='teacher_dashboard.html');
+</script>
+</body>
+</html>

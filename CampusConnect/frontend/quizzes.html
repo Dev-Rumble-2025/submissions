@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CollegeConnect — Quizzes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--blue:#0f2a5f;--muted:#64748b}
+    body{margin:0;font-family:'Poppins',sans-serif;background:#f8fafc;color:#0f1724}
+    header{background:linear-gradient(90deg,#0f2a5f,#0b1f47);color:white;padding:12px}
+    .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .container{max-width:1200px;margin:18px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .card{background:white;border-radius:12px;padding:12px;box-shadow:0 6px 24px rgba(11,20,40,0.04);border:1px solid #eef2f7}
+    .muted{color:var(--muted)}
+    .btn{background:var(--blue);color:white;border:none;padding:8px;border-radius:8px;cursor:pointer}
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45)}
+    .modal .panel{background:white;padding:14px;border-radius:12px;max-width:420px;width:90%}
+    @media(max-width:840px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header><div class="nav" style="max-width:1200px;margin:0 auto"><div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:white;color:#0f2a5f;display:grid;place-items:center;font-weight:900">CC</div><div style="font-weight:700">CollegeConnect</div></div><div><button onclick="location.href='dashboard.html'" style="background:transparent;border:none;color:white;cursor:pointer">Dashboard</button></div></div></header>
+
+  <main class="container">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0">Weekly Quizzes</h2>
+      <div><button class="btn" onclick="alert('Create/Join flow (demo)')">Create / Join</button></div>
+    </header>
+ <!-- Shared quizzes published by teachers -->
+<div id="sharedQuizzes" style="margin-top:12px"></div>
+    <div id="quizzesGrid" class="grid"></div>
+  </main>
+
+  <div id="leaderboardModal" style="display:none" aria-hidden="true"></div>
+
+  <footer style="text-align:center;padding:12px;color:#94a3b8">© <span id="year"></span> CollegeConnect</footer>
+
+  <script>
+    document.getElementById('year').innerText = new Date().getFullYear();
+    // Initialize demo quizzes if none exist
+if(!localStorage.getItem('cc_quizzes')) {
+  const demoQuizzes = [
+    {id:'q1', title:'Data Structures – Week 5', description:'Trees and Graphs', status:'active', reward:25, endsAt: Date.now() + 24*3600*1000},
+    {id:'q2', title:'Operating Systems – Week 5', description:'Process Scheduling', status:'upcoming', reward:20, startsAt: Date.now() + 2*24*3600*1000},
+    {id:'q3', title:'Discrete Math – Week 4', description:'Logic & Set Theory', status:'past', rewardEarned:30, score:18, outOf:20, endsAt: Date.now() - 2*24*3600*1000}
+  ];
+  localStorage.setItem('cc_quizzes', JSON.stringify(demoQuizzes));
+}
+    function getQuizzes(){ return JSON.parse(localStorage.getItem('cc_quizzes')||'[]'); }
+    function setQuizzes(q){ localStorage.setItem('cc_quizzes', JSON.stringify(q)); }
+    function addCoins(amount, reason){
+      const c = Number(localStorage.getItem('cc_coins')||0) + amount;
+      localStorage.setItem('cc_coins', String(c));
+      const n = JSON.parse(localStorage.getItem('cc_notifications')||'[]');
+      n.unshift({id:'n'+Date.now(),text:`+${amount} coins (${reason})`,time:Date.now()});
+      localStorage.setItem('cc_notifications', JSON.stringify(n));
+    }
+    <!-- Existing personal quizzes area... -->
+
+
+
+    function renderQuizzes(){
+      const q = getQuizzes();
+      const grid = document.getElementById('quizzesGrid'); grid.innerHTML='';
+      q.forEach(item=>{
+        const card = document.createElement('div'); card.className='card';
+        const status = document.createElement('div'); status.className='muted'; status.textContent = item.status.toUpperCase();
+        const title = document.createElement('div'); title.style.fontWeight='700'; title.style.marginTop='8px'; title.textContent = item.title;
+        const meta = document.createElement('div'); meta.className='muted'; meta.style.marginTop='8px';
+        if(item.status==='active') meta.textContent = 'Ends: ' + new Date(item.endsAt).toLocaleString();
+        if(item.status==='upcoming') meta.textContent = 'Starts: ' + new Date(item.startsAt).toLocaleString();
+        if(item.status==='past') meta.textContent = 'Score: ' + (item.score||0) + '/' + (item.outOf||0) + ' • +' + (item.rewardEarned||0) + ' coins';
+        const footer = document.createElement('div'); footer.style.marginTop='12px'; footer.style.display='flex'; footer.style.gap='8px';
+        if(item.status!=='past'){
+          const startBtn = document.createElement('button'); startBtn.className='btn'; startBtn.textContent = item.status==='active' ? 'Start' : 'Remind Me';
+          startBtn.onclick = ()=>{ if(item.status==='active'){ addCoins(item.reward||10, item.title+' participation'); alert('Started — +'+(item.reward||10)+' coins (demo)'); } else alert('Set reminder (demo)'); }
+          footer.appendChild(startBtn);
+        }
+        const lb = document.createElement('button'); lb.className='btn'; lb.textContent='Leaderboard'; lb.style.background='white'; lb.style.border='1px solid #eef2f7'; lb.style.color='#0f1724';
+        lb.onclick = ()=>openLeaderboard(item);
+        footer.appendChild(lb);
+        card.appendChild(status); card.appendChild(title); card.appendChild(meta); card.appendChild(footer);
+        grid.appendChild(card);
+      });
+    }
+
+    function openLeaderboard(q){
+      // Demo static leaderboard
+      const data = [{rank:1,name:'Aarav S.',score:19},{rank:2,name:'Sita R.',score:19},{rank:3,name:'You',score:18}];
+      const modal = document.getElementById('leaderboardModal');
+      modal.style.display='flex';
+      modal.innerHTML = `<div class="modal" role="dialog" aria-modal="true"><div class="panel"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">Leaderboard — ${q.title}</div><button onclick="closeLB()" style="border:none;background:none;cursor:pointer">✕</button></div><ul style="margin-top:12px;padding-left:0">${data.map(d=>`<li style="list-style:none;padding:8px 0;display:flex;justify-content:space-between;border-bottom:1px solid #f1f5f9"><div>${d.rank}. ${d.name}</div><div>${d.score}</div></li>`).join('')}</ul></div></div></div>`;
+    }
+    function closeLB(){ document.getElementById('leaderboardModal').style.display='none'; }
+
+    renderQuizzes();
+    (function(){
+  function safeParse(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } }
+
+  // Public render functions - adapt markup to your page
+  function renderSharedQuizzes(){
+    const container = document.getElementById('sharedQuizzes');
+    if(!container) return;
+    const quizzes = safeParse('cc_quizzes', []);
+    container.innerHTML = '';
+    if(quizzes.length===0){ container.innerHTML = '<div style="color:#64748b">No quizzes published.</div>'; return; }
+    quizzes.slice().reverse().forEach(q=>{
+      const el = document.createElement('div');
+      el.className = 'shared-quiz-item';
+      el.style.padding='10px'; el.style.borderBottom='1px solid #eef2f7';
+      el.innerHTML = `<div style="font-weight:600">${q.title}</div><div style="color:#64748b;font-size:0.95rem">${q.description||''}</div><div style="margin-top:6px;color:#0f2a5f;font-size:0.9rem">Reward: ${q.reward || 0} coins • ${q.status}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderSharedAssignments(){
+    const container = document.getElementById('sharedAssignments');
+    if(!container) return;
+    const as = safeParse('cc_assignments', []);
+    container.innerHTML = '';
+    if(as.length===0){ container.innerHTML = '<div style="color:#64748b">No assignments published.</div>'; return; }
+    as.slice().reverse().forEach(a=>{
+      const el = document.createElement('div');
+      el.style.padding='10px'; el.style.borderBottom='1px solid #eef2f7';
+      el.innerHTML = `<div style="font-weight:600">${a.title}</div><div style="color:#64748b;font-size:0.95rem">${a.description||''}</div><div style="margin-top:6px;font-size:0.9rem">${a.due?('Due: '+ new Date(a.due).toLocaleString()):''}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderSharedNotifications(){
+    const container = document.getElementById('notifList');
+    if(!container) return;
+    const notifs = safeParse('cc_notifications', []);
+    container.innerHTML = '';
+    if(notifs.length===0){ container.innerHTML = '<div style="color:#64748b">No notifications.</div>'; return; }
+    notifs.slice().reverse().forEach(n=>{
+      const el = document.createElement('div');
+      el.style.padding='8px'; el.style.borderBottom='1px solid #f1f5f9';
+      el.innerHTML = `<div style="font-size:0.95rem">${n.text}</div><div style="font-size:0.8rem;color:#94a3b8">${new Date(n.at).toLocaleString()}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  // initial render
+  renderSharedQuizzes();
+  renderSharedAssignments();
+  renderSharedNotifications();
+
+  // react to storage events (teacher in other tab updated shared data)
+  window.addEventListener('storage', (e)=>{
+    if(e.key === 'cc_quizzes'){
+      renderSharedQuizzes();
+    } else if(e.key === 'cc_assignments'){
+      renderSharedAssignments();
+    } else if(e.key === 'cc_notifications'){
+      renderSharedNotifications();
+      // optionally show a small popup
+      try {
+        const notifs = safeParse('cc_notifications', []);
+        const last = notifs[notifs.length-1];
+        if(last && document.visibilityState === 'visible'){
+          // small in-app toast - simple
+          const t = document.createElement('div');
+          t.textContent = last.text;
+          t.style.position='fixed'; t.style.right='14px'; t.style.bottom='14px';
+          t.style.background='#0f2a5f'; t.style.color='white'; t.style.padding='10px 14px';
+          t.style.borderRadius='10px'; t.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)'; t.style.zIndex=9999;
+          document.body.appendChild(t);
+          setTimeout(()=>t.remove(), 3500);
+        }
+      } catch(e){}
+    }
+  });
+
+  // expose for debugging if needed
+  window.renderSharedQuizzes = renderSharedQuizzes;
+  window.renderSharedAssignments = renderSharedAssignments;
+  window.renderSharedNotifications = renderSharedNotifications;
+})();
+  </script>
+ 
+</body>
+</html>

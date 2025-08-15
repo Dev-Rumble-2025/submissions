@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CollegeConnect — Tasks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600,700&display=swap" rel="stylesheet">
+  <style>
+    :root{--blue:#0f2a5f;--muted:#64748b}
+    body{margin:0;font-family:'Poppins',sans-serif;background:#f8fafc;color:#0f1724}
+    header{background:linear-gradient(90deg,#0f2a5f,#0b1f47);color:white;padding:12px}
+    .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .container{max-width:1200px;margin:18px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .card{background:white;border-radius:12px;padding:12px;box-shadow:0 6px 26px rgba(11,20,40,0.04);border:1px solid #eef2f7}
+    .priority{padding:6px 8px;border-radius:999px;font-weight:600;font-size:12px}
+    .high{color:#b91c1c;border:1px solid #fecaca}
+    .med{color:#92400e;border:1px solid #fde68a}
+    .low{color:#065f46;border:1px solid #bbf7d0}
+    .btn{background:var(--blue);color:white;padding:8px;border-radius:8px;border:none;cursor:pointer}
+    @media(max-width:900px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header><div class="nav" style="max-width:1200px;margin:0 auto"><div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:36px;border-radius:10px;background:white;color:#0f2a5f;display:grid;place-items:center;font-weight:900">CC</div><div style="font-weight:700">CollegeConnect</div></div><div><button onclick="location.href='dashboard.html'" style="background:transparent;border:none;color:white;cursor:pointer">Dashboard</button></div></div></header>
+
+ <main class="container">
+
+  <!-- Tasks -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2>Tasks & Reminders</h2>
+    <button class="btn" onclick="addSampleTask()">Add sample task</button>
+  </div>
+  <div id="tasksGrid" class="grid"></div>
+
+  <!-- Shared Assignments -->
+  <div class="card">
+    <h2>Assignments from Teachers</h2>
+    <div id="sharedAssignments">No assignments yet.</div>
+  </div>
+
+  <!-- Shared Quizzes -->
+  <div class="card">
+    <h2>Quizzes from Teachers</h2>
+    <div id="sharedQuizzes">No quizzes yet.</div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="card">
+    <h2>Notifications</h2>
+    <div id="notifList">No notifications.</div>
+  </div>
+
+</main>
+
+  <footer style="text-align:center;padding:12px;color:#94a3b8">© <span id="year"></span> CollegeConnect</footer>
+
+  <script>
+    document.getElementById('year').innerText = new Date().getFullYear();
+    // Initialize demo tasks if none exist
+if(!localStorage.getItem('cc_tasks')) {
+  const demoTasks = [
+    {id:'t1', title:'Database Assignment', course:'DBMS', due: Date.now() + 2*24*3600*1000, priority:'high'},
+    {id:'t2', title:'OS Lab Report', course:'Operating Systems', due: Date.now() + 4*24*3600*1000, priority:'medium'},
+    {id:'t3', title:'Math Homework', course:'Discrete Math', due: Date.now() + 1*24*3600*1000, priority:'low'}
+  ];
+  localStorage.setItem('cc_tasks', JSON.stringify(demoTasks));
+}
+    function getTasks(){ return JSON.parse(localStorage.getItem('cc_tasks')||'[]'); }
+    function saveTasks(t){ localStorage.setItem('cc_tasks', JSON.stringify(t)); renderTasks(); }
+
+    function formatDate(ms){ const d=new Date(ms); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+
+    function renderTasks(){
+      const tasks = getTasks();
+      const grid = document.getElementById('tasksGrid'); grid.innerHTML='';
+      if(tasks.length===0){ grid.innerHTML = '<div class="card">No tasks — enjoy a break!</div>'; return; }
+      tasks.forEach(t=>{
+        const c = document.createElement('div'); c.className='card';
+        const h = document.createElement('div'); h.style.display='flex'; h.style.justifyContent='space-between'; h.style.alignItems='center';
+        const left = document.createElement('div'); left.innerHTML = `<div style="font-weight:700">${t.title}</div><div style="color:#64748b;font-size:0.9rem">${t.course} • Due ${formatDate(t.due)}</div>`;
+        const pri = document.createElement('div'); pri.className='priority '+(t.priority==='high'?'high':t.priority==='medium'?'med':'low'); pri.textContent = t.priority;
+        h.appendChild(left); h.appendChild(pri);
+        const actions = document.createElement('div'); actions.style.marginTop='12px'; actions.style.display='flex'; actions.style.gap='8px';
+        const notify = document.createElement('button'); notify.className='btn'; notify.textContent='Notify Me'; notify.onclick = ()=>alert('Reminder set (demo)');
+        const done = document.createElement('button'); done.textContent='Mark Done'; done.style.padding='8px'; done.style.borderRadius='8px'; done.style.border='1px solid #eef2f7'; done.style.background='white'; done.onclick = ()=>{ markDone(t.id); };
+        actions.appendChild(notify); actions.appendChild(done);
+        c.appendChild(h); c.appendChild(actions); grid.appendChild(c);
+        <!-- Student tasks/assignments area -->
+      <div id="sharedAssignments" style="margin-top:12px"></div>
+
+      });
+    }
+
+    function markDone(id){
+      const tasks = getTasks().filter(x=>x.id!==id);
+      saveTasks(tasks);
+    }
+
+    function addSampleTask(){
+      const t = getTasks();
+      t.push({id:'t'+Date.now(),title:'New sample task',course:'Demo',due:Date.now()+2*24*3600*1000,priority:'low'});
+      saveTasks(t);
+    }
+
+    renderTasks();
+    (function(){
+  function safeParse(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } }
+
+  // Public render functions - adapt markup to your page
+  function renderSharedQuizzes(){
+    const container = document.getElementById('sharedQuizzes');
+    if(!container) return;
+    const quizzes = safeParse('cc_quizzes', []);
+    container.innerHTML = '';
+    if(quizzes.length===0){ container.innerHTML = '<div style="color:#64748b">No quizzes published.</div>'; return; }
+    quizzes.slice().reverse().forEach(q=>{
+      const el = document.createElement('div');
+      el.className = 'shared-quiz-item';
+      el.style.padding='10px'; el.style.borderBottom='1px solid #eef2f7';
+      el.innerHTML = `<div style="font-weight:600">${q.title}</div><div style="color:#64748b;font-size:0.95rem">${q.description||''}</div><div style="margin-top:6px;color:#0f2a5f;font-size:0.9rem">Reward: ${q.reward || 0} coins • ${q.status}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderSharedAssignments(){
+    const container = document.getElementById('sharedAssignments');
+    if(!container) return;
+    const as = safeParse('cc_assignments', []);
+    container.innerHTML = '';
+    if(as.length===0){ container.innerHTML = '<div style="color:#64748b">No assignments published.</div>'; return; }
+    as.slice().reverse().forEach(a=>{
+      const el = document.createElement('div');
+      el.style.padding='10px'; el.style.borderBottom='1px solid #eef2f7';
+      el.innerHTML = `<div style="font-weight:600">${a.title}</div><div style="color:#64748b;font-size:0.95rem">${a.description||''}</div><div style="margin-top:6px;font-size:0.9rem">${a.due?('Due: '+ new Date(a.due).toLocaleString()):''}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderSharedNotifications(){
+    const container = document.getElementById('notifList');
+    if(!container) return;
+    const notifs = safeParse('cc_notifications', []);
+    container.innerHTML = '';
+    if(notifs.length===0){ container.innerHTML = '<div style="color:#64748b">No notifications.</div>'; return; }
+    notifs.slice().reverse().forEach(n=>{
+      const el = document.createElement('div');
+      el.style.padding='8px'; el.style.borderBottom='1px solid #f1f5f9';
+      el.innerHTML = `<div style="font-size:0.95rem">${n.text}</div><div style="font-size:0.8rem;color:#94a3b8">${new Date(n.at).toLocaleString()}</div>`;
+      container.appendChild(el);
+    });
+  }
+
+  // initial render
+  renderSharedQuizzes();
+  renderSharedAssignments();
+  renderSharedNotifications();
+
+  // react to storage events (teacher in other tab updated shared data)
+  window.addEventListener('storage', (e)=>{
+    if(e.key === 'cc_quizzes'){
+      renderSharedQuizzes();
+    } else if(e.key === 'cc_assignments'){
+      renderSharedAssignments();
+    } else if(e.key === 'cc_notifications'){
+      renderSharedNotifications();
+      // optionally show a small popup
+      try {
+        const notifs = safeParse('cc_notifications', []);
+        const last = notifs[notifs.length-1];
+        if(last && document.visibilityState === 'visible'){
+          // small in-app toast - simple
+          const t = document.createElement('div');
+          t.textContent = last.text;
+          t.style.position='fixed'; t.style.right='14px'; t.style.bottom='14px';
+          t.style.background='#0f2a5f'; t.style.color='white'; t.style.padding='10px 14px';
+          t.style.borderRadius='10px'; t.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)'; t.style.zIndex=9999;
+          document.body.appendChild(t);
+          setTimeout(()=>t.remove(), 3500);
+        }
+      } catch(e){}
+    }
+  });
+
+  // expose for debugging if needed
+  window.renderSharedQuizzes = renderSharedQuizzes;
+  window.renderSharedAssignments = renderSharedAssignments;
+  window.renderSharedNotifications = renderSharedNotifications;
+})();
+  </script>
+</body>
+</html>

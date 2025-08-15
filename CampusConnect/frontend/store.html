@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollegeConnect — Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{
+    font-family:'Poppins',sans-serif;
+    background:#f0f2f5;
+    margin:0;
+    padding:0;
+    color:#0f1724;
+  }
+  a{text-decoration:none;color:inherit;}
+  /* Navbar */
+  .navbar{
+    background:#0f2a5f;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 24px;
+  }
+  .navbar .logo{
+    font-weight:700;
+    font-size:1.2rem;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .navbar .logo-box{
+    width:36px;
+    height:36px;
+    background:white;
+    color:#0f2a5f;
+    display:grid;
+    place-items:center;
+    border-radius:8px;
+    font-weight:900;
+  }
+  .nav-links{
+    display:flex;
+    gap:16px;
+  }
+  .nav-links a{
+    padding:6px 10px;
+    border-radius:8px;
+    font-weight:500;
+  }
+  .nav-links a:hover{
+    background:rgba(255,255,255,0.15);
+  }
+
+  /* Page content */
+  .container{max-width:1000px;margin:20px auto;display:grid;grid-template-columns:1fr;gap:20px;padding:0 12px;}
+  h1,h2{margin:0;}
+  .coins{font-weight:600;margin-bottom:12px;font-size:1.2rem;}
+  
+  .vouchers{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+  }
+  .voucher{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.06);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .voucher:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 25px rgba(0,0,0,0.1);
+  }
+  .voucher h3{margin-bottom:10px;font-size:1.1rem;color:#0f2a5f;}
+  .voucher p{font-size:0.95rem;color:#64748b;margin-bottom:15px;}
+  .voucher .price{font-weight:600;margin-bottom:10px;font-size:1rem;}
+  .voucher button{
+    background:#0f2a5f;
+    color:white;
+    padding:8px 12px;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.2s;
+  }
+  .voucher button:disabled{
+    background:#94a3b8;
+    cursor:not-allowed;
+  }
+
+  footer{margin-top:40px;text-align:center;font-size:0.85rem;color:#64748b;padding:12px;}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="logo">
+    <div class="logo-box">CC</div>
+    CollegeConnect
+  </div>
+  <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="chat.html">Chat</a>
+    <a href="profile.html">Profile</a>
+    <a href="quizzes.html">Quizzes</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="store.html">Store</a>
+  </div>
+</div>
+
+<!-- Page Content -->
+<h1 style="text-align:center;margin-top:20px;">CollegeConnect Store</h1>
+<div class="container">
+  <div class="coins">Your Coins: <span id="coinCount">0</span></div>
+  <div class="vouchers" id="voucherList">
+    <!-- Vouchers injected here -->
+  </div>
+</div>
+
+<footer>© <span id="year"></span> CollegeConnect</footer>
+
+<script>
+  const perks = [
+    {id:'p1', name:'Library Priority Pass', desc:'Skip the queue and get priority access to library resources.', price:100},
+    {id:'p2', name:'Cafeteria Discount', desc:'Get 20% off your meals at the cafeteria for a week.', price:50},
+    {id:'p3', name:'Event VIP Access', desc:'Access VIP areas at College events.', price:200},
+    {id:'p4', name:'Extra Quiz Attempt', desc:'Get one additional attempt for any active quiz.', price:75}
+  ];
+
+  let coins = parseInt(localStorage.getItem('cc_coins') || '0');
+  let claimed = JSON.parse(localStorage.getItem('cc_claimed_vouchers') || '[]');
+
+  const coinCountEl = document.getElementById('coinCount');
+  const voucherListEl = document.getElementById('voucherList');
+
+  function updateCoinsDisplay(){ coinCountEl.textContent = coins; }
+
+  function claimVoucher(perk){
+    if(coins >= perk.price){
+      coins -= perk.price;
+      claimed.push(perk);
+      localStorage.setItem('cc_coins', coins);
+      localStorage.setItem('cc_claimed_vouchers', JSON.stringify(claimed));
+      renderVouchers();
+      updateCoinsDisplay();
+      alert(`Voucher claimed: ${perk.name}`);
+    } else {
+      alert('Not enough coins to claim this voucher.');
+    }
+  }
+
+  function renderVouchers(){
+    voucherListEl.innerHTML = '';
+    perks.forEach(p=>{
+      const isClaimed = claimed.find(v=>v.id===p.id);
+      const div = document.createElement('div');
+      div.className='voucher';
+      div.innerHTML=`
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <div class="price">Price: ${p.price} coins</div>
+        <button ${isClaimed?'disabled':''} onclick='claimVoucher(${JSON.stringify(p)})'>
+          ${isClaimed?'Claimed':'Claim'}
+        </button>
+      `;
+      voucherListEl.appendChild(div);
+    });
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+  updateCoinsDisplay();
+  renderVouchers();
+</script>
+
+</body>
+</html>

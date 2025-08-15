@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CampusConnect — Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600,700&display=swap" rel="stylesheet">
+  <style>
+    :root{--blue:#0f2a5f;--muted:#64748b}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Poppins',sans-serif;background:#f8fafc;color:#0f1724}
+    header{background:linear-gradient(90deg,#0f2a5f,#0b1f47);color:white;padding:12px 16px;position:sticky;top:0}
+    .nav{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .logo-box{height:34px;width:34px;border-radius:10px;background:white;color:#0f2a5f;display:grid;place-items:center;font-weight:900}
+    .container{max-width:1200px;margin:18px auto;padding:0 16px}
+    .layout{display:grid;grid-template-columns:240px 1fr;gap:16px;height:70vh}
+    .card{background:white;border-radius:12px;padding:12px;box-shadow:0 6px 22px rgba(11,20,40,0.04);border:1px solid #eef2f7}
+    .channels{overflow:auto;height:100%}
+    .channel-btn{display:block;width:100%;text-align:left;padding:10px;border-radius:10px;border:none;background:transparent;cursor:pointer}
+    .channel-btn.active{background:#f1f5f9}
+    .messages{display:flex;flex-direction:column;gap:10px;overflow:auto;padding-right:6px;height:100%}
+    .msg.you{align-self:flex-end;background:#0f2a5f;color:white;border-radius:12px 12px 6px 12px;padding:8px 10px}
+    .msg.other{align-self:flex-start;background:#f1f5f9;border-radius:12px 12px 12px 6px;padding:8px 10px}
+    .composer{display:flex;gap:8px;padding-top:8px}
+    input[type="text"]{flex:1;padding:10px;border-radius:12px;border:1px solid #e6eef7}
+    button.send{background:var(--blue);color:white;border:none;padding:10px 14px;border-radius:12px;cursor:pointer}
+    @media (max-width:850px){ .layout{grid-template-columns:1fr;height:60vh} .channels{display:flex;overflow:auto} .channel-btn{flex:1} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav" style="max-width:1200px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:12px"><div class="logo-box">CC</div><div style="font-weight:700">CampusConnect</div></div>
+      <div style="display:flex;gap:12px">
+        <button onclick="location.href='dashboard.html'" style="background:transparent;border:none;color:white;cursor:pointer">Dashboard</button>
+        <button onclick="location.href='quizzes.html'" style="background:transparent;border:none;color:white;cursor:pointer">Quizzes</button>
+        <button onclick="location.href='tasks.html'" style="background:transparent;border:none;color:white;cursor:pointer">Tasks</button>
+        <button onclick="location.href='profile.html'" style="background:transparent;border:none;color:white;cursor:pointer">Profile</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="layout">
+      <aside class="card channels" id="channelsCol">
+        <div style="font-weight:600;margin-bottom:8px">Channels</div>
+        <div id="channelsList"></div>
+      </aside>
+
+      <section class="card" style="display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f1f5f9;padding-bottom:8px;margin-bottom:8px">
+          <div id="activeChannelName" style="font-weight:600">Select channel</div>
+          <div style="font-size:0.9rem;color:var(--muted)">12 online</div>
+        </div>
+
+        <div id="messagesPanel" class="messages" style="flex:1"></div>
+
+        <div class="composer">
+          <input id="messageInput" type="text" placeholder="Message #channel" />
+          <button class="send" id="sendBtn">Send</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer style="text-align:center;padding:12px;color:#94a3b8">© <span id="year"></span> CampusConnect</footer>
+
+  <script>
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+    // state helpers (localStorage-backed)
+    function getChannels(){ return JSON.parse(localStorage.getItem('cc_channels')||'[]'); }
+    function getMessages(){ return JSON.parse(localStorage.getItem('cc_messages')||'{}'); }
+    function saveMessages(m){ localStorage.setItem('cc_messages', JSON.stringify(m)); }
+
+    const channels = getChannels();
+    const channelsList = document.getElementById('channelsList');
+    const messagesPanel = document.getElementById('messagesPanel');
+    const activeName = document.getElementById('activeChannelName');
+    let active = channels[0] ? channels[0].id : null;
+
+    function renderChannels(){
+      channelsList.innerHTML='';
+      channels.forEach(c=>{
+        const btn = document.createElement('button');
+        btn.className='channel-btn'+(c.id===active ? ' active': '');
+        btn.textContent = c.name;
+        btn.onclick = ()=>{ active = c.id; renderChannels(); renderMessages(); }
+        channelsList.appendChild(btn);
+      });
+    }
+
+    function renderMessages(){
+      const all = getMessages();
+      const arr = all[active] || [];
+      messagesPanel.innerHTML='';
+      arr.forEach(m=>{
+        const div = document.createElement('div');
+        div.className = 'msg ' + (m.author === getUserName() ? 'you':'other');
+        const author = document.createElement('div'); author.style.fontSize='12px'; author.style.opacity='0.8'; author.textContent = m.author;
+        const txt = document.createElement('div'); txt.textContent = m.text;
+        const t = document.createElement('div'); t.style.fontSize='10px'; t.style.opacity='0.7'; t.style.marginTop='6px'; t.textContent = new Date(m.at).toLocaleTimeString();
+        div.appendChild(author); div.appendChild(txt); div.appendChild(t);
+        messagesPanel.appendChild(div);
+      });
+      messagesPanel.scrollTo({top:messagesPanel.scrollHeight, behavior:'smooth'});
+      activeName.textContent = channels.find(x=>x.id===active)?.name || '';
+    }
+
+    function getUserName(){ return JSON.parse(localStorage.getItem('cc_user')||'{"name":"You"}').name || 'You'; }
+
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMessage(); });
+
+    function sendMessage(){
+      const t = document.getElementById('messageInput'); const val = t.value.trim(); if(!val) return;
+      const msgs = getMessages();
+      if(!msgs[active]) msgs[active]=[];
+      msgs[active].push({id:Date.now(),author:getUserName(),text:val,at:Date.now()});
+      saveMessages(msgs);
+      t.value=''; renderMessages();
+    }
+
+    // init
+    if(!active && channels.length) active = channels[0].id;
+    renderChannels(); renderMessages();
+  </script>
+</body>
+</html>

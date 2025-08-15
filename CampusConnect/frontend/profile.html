@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CollegeConnect — Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue: #0f2a5f;
+      --blue-2: #0b1f47;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f1724;
+    }
+
+    /* Dark theme variables (applied when body.dark-theme exists) */
+    body.dark-theme {
+      --bg: #0b1220;
+      --card: #0f1724;
+      --text: #e6eef7;
+      --muted: #9aa9bf;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Poppins',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Header / navbar */
+    header{
+      background: linear-gradient(90deg,var(--blue),var(--blue-2));
+      color:white;
+      padding:12px;
+      position:sticky;
+      top:0;
+      z-index:40;
+    }
+    .nav{
+      max-width:1200px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .logo-box{
+      width:36px;height:36px;border-radius:10px;background:white;color:var(--blue);display:grid;place-items:center;font-weight:900
+    }
+    .nav a{color:inherit;text-decoration:none}
+
+    /* Page container */
+    .container{max-width:1200px;margin:16px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+    @media(max-width:900px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 6px 26px rgba(11,20,40,0.04);
+      border:1px solid rgba(14,20,30,0.03);
+      color:var(--text);
+    }
+
+    /* Profile header */
+    .profile-top{display:flex;gap:12px;align-items:center}
+    .avatar{width:64px;height:64px;border-radius:12px;background:var(--blue);color:white;display:grid;place-items:center;font-size:22px;font-weight:700}
+    .muted{color:var(--muted);font-size:0.95rem}
+
+    /* Student details form */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+    @media(max-width:600px){ .form-row{grid-template-columns:1fr} }
+    label{font-size:0.9rem;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="text"], select, input[type="tel"]{
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid rgba(14,20,30,0.06);
+      background:linear-gradient(180deg,transparent,transparent);
+      color:var(--text);
+    }
+    .btn{background:var(--blue);color:white;padding:10px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+    .btn-ghost{background:transparent;border:1px solid rgba(14,20,30,0.06);padding:10px;border-radius:10px;cursor:pointer}
+
+    /* Settings box (right column) */
+    .setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(14,20,30,0.03)}
+    .toggle{
+      width:44px;height:26px;border-radius:999px;background:#e6eef7;position:relative;cursor:pointer;border:1px solid rgba(14,20,30,0.03)
+    }
+    .toggle .knob{
+      width:20px;height:20px;border-radius:999px;background:white;position:absolute;top:2px;left:2px;box-shadow:0 4px 10px rgba(11,20,40,0.08);transition:left .18s ease, background .18s ease;
+    }
+    .toggle.on{background:linear-gradient(90deg,var(--blue),var(--blue-2));}
+    .toggle.on .knob{left:22px;background:white}
+
+    .small{font-size:0.9rem;color:var(--muted)}
+    .note{font-size:0.85rem;color:var(--muted);margin-top:8px}
+
+    footer{padding:12px;text-align:center;color:var(--muted);border-top:1px solid rgba(14,20,30,0.03)}
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header>
+    <div class="nav">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="logo-box">CC</div>
+        <div style="font-weight:700">CollegeConnect</div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center">
+        <button onclick="location.href='dashboard.html'" style="background:transparent;border:none;color:white;cursor:pointer">Dashboard</button>
+        <button onclick="location.href='quizzes.html'" style="background:transparent;border:none;color:white;cursor:pointer">Quizzes</button>
+        <button onclick="location.href='tasks.html'" style="background:transparent;border:none;color:white;cursor:pointer">Tasks</button>
+        <button onclick="location.href='chat.html'" style="background:transparent;border:none;color:white;cursor:pointer">Chat</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="page">
+    <div class="grid">
+      <!-- LEFT: Profile & Student Details -->
+      <div>
+        <div class="card" id="profileCard">
+          <div class="profile-top">
+            <div id="avatar" class="avatar">B</div>
+            <div>
+              <div id="displayName" style="font-weight:700;font-size:1.12rem">Biswas</div>
+              <div id="displayMeta" class="muted">Student • ID: u123</div>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-weight:700;margin-bottom:8px">Student Details</div>
+
+            <!-- Student details form -->
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="form-row">
+                <div>
+                  <label for="lcid">LCID</label>
+                  <input id="lcid" type="text" placeholder="e.g. LC12345" />
+                </div>
+                <div>
+                  <label for="fullname">Name</label>
+                  <input id="fullname" type="text" placeholder="Full name" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <label for="year">Year</label>
+  <select id="year">
+    <option value="">Select year</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+
+                </div>
+                <div>
+                  <label for="semester">Semester</label>
+                  <select id="semester">
+                    <option value="">Select semester</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option>5</option><option>6</option><option>7</option><option>8</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div>
+                  <label for="gender">Gender</label>
+                  <select id="gender">
+                    <option value="">Select</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="contact">Contact No</label>
+                  <input id="contact" type="tel" placeholder="+977-98XXXXXXXX" />
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;margin-top:8px">
+                <button id="saveStudent" class="btn">Save Details</button>
+                <button id="resetStudent" class="btn-ghost">Reset</button>
+              </div>
+
+              <div id="saveMsg" class="note" style="display:none;color:var(--muted)"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Settings -->
+      <aside>
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:8px">Settings</div>
+
+          <div class="setting-row">
+            <div>
+              <div style="font-weight:600">Dark Blue Theme</div>
+              <div class="small">Toggle site colors</div>
+            </div>
+            <div id="themeToggle" class="toggle" role="switch" aria-checked="false" tabindex="0">
+              <div class="knob"></div>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <div style="font-weight:600">Notifications</div>
+              <div class="small">Receive alerts and reminders</div>
+            </div>
+            <div id="notifToggle" class="toggle" role="switch" aria-checked="true" tabindex="0">
+              <div class="knob"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="note">
+            Changes are saved locally in your browser. Use these settings to toggle the theme and notification behavior for the demo.
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>© <span id="year"></span> CollegeConnect</footer>
+
+  <script>
+// ---------- Utilities ----------
+    function $(id){ return document.getElementById(id); }
+    function setLS(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+    function getLS(key, fallback){ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+
+  const semesterEl = document.getElementById('semester');
+  const yearEl = document.getElementById('year');
+
+ function updateYearFromSemester(sem){
+    if(!sem) return;
+    // only auto-set year if no year is selected
+    if(!yearEl.value){
+        const s = parseInt(sem);
+        if(s===1 || s===2) yearEl.value='1';
+        else if(s===3 || s===4) yearEl.value='2';
+        else if(s===5 || s===6) yearEl.value='3';
+        else if(s===7 || s===8) yearEl.value='4';
+    }
+}
+
+  semesterEl.addEventListener('change',()=>updateYearFromSemester(semesterEl.value));
+  updateYearFromSemester(semesterEl.value);
+
+
+    // ---------- Initialize defaults (if missing) ----------
+    if(!localStorage.getItem('cc_user')) {
+      localStorage.setItem('cc_user', JSON.stringify({id:'u123', name:'Biswas'}));
+    }
+    if(!localStorage.getItem('cc_student')) {
+      // try to prefill from cc_user
+      const u = getLS('cc_user', {id:'u123', name:'Biswas'});
+      const defaultStudent = {
+        lcid: '',
+        name: u.name || '',
+        year: '',
+        semester: '',
+        gender: '',
+        contact: ''
+      };
+      setLS('cc_student', defaultStudent);
+    }
+    if(localStorage.getItem('cc_dark') === null) {
+      // default: false (light theme)
+      localStorage.setItem('cc_dark', JSON.stringify(false));
+    }
+    if(localStorage.getItem('cc_notifications') === null) {
+      // keep existing notifications array if present, else default to true
+      localStorage.setItem('cc_notifications_enabled', JSON.stringify(true));
+    }
+
+    // ---------- Populate UI from storage ----------
+    const user = getLS('cc_user', {id:'u123', name:'Biswas'});
+    const student = getLS('cc_student', {lcid:'', name:'', year:'', semester:'', gender:'', contact:''});
+    const isDark = getLS('cc_dark', false);
+    const notifEnabled = getLS('cc_notifications_enabled', true);
+
+    // set header/profile display
+    $('displayName').innerText = user.name || student.name || 'Student';
+    $('displayMeta').innerText = 'Student • ID: ' + (user.id || 'u123');
+    $('avatar').innerText = (user.name || '').slice(0,1).toUpperCase();
+
+    // fill student form fields
+    $('lcid').value = student.lcid || '';
+    $('fullname').value = student.name || user.name || '';
+    $('year').value = student.year || '';
+    $('semester').value = student.semester || '';
+    $('gender').value = student.gender || '';
+    $('contact').value = student.contact || '';
+
+    // set year in footer
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+    // ---------- Theme toggle logic ----------
+    const themeToggle = $('themeToggle');
+    function applyTheme(enabled){
+      if(enabled){
+        document.body.classList.add('dark-theme');
+        themeToggle.classList.add('on');
+        themeToggle.setAttribute('aria-checked', 'true');
+      } else {
+        document.body.classList.remove('dark-theme');
+        themeToggle.classList.remove('on');
+        themeToggle.setAttribute('aria-checked', 'false');
+      }
+    }
+    applyTheme(isDark);
+
+    themeToggle.addEventListener('click', ()=> {
+      const cur = getLS('cc_dark', false);
+      setLS('cc_dark', !cur);
+      applyTheme(!cur);
+    });
+    themeToggle.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); themeToggle.click(); } });
+
+    // ---------- Notifications toggle ----------
+    const notifToggle = $('notifToggle');
+    function applyNotif(enabled){
+      if(enabled){
+        notifToggle.classList.add('on');
+        notifToggle.setAttribute('aria-checked', 'true');
+      } else {
+        notifToggle.classList.remove('on');
+        notifToggle.setAttribute('aria-checked', 'false');
+      }
+      // persist
+      setLS('cc_notifications_enabled', enabled);
+    }
+    applyNotif(notifEnabled);
+
+    notifToggle.addEventListener('click', ()=> {
+      const cur = getLS('cc_notifications_enabled', true);
+      applyNotif(!cur);
+    });
+    notifToggle.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); notifToggle.click(); } });
+
+    // ---------- Student details save/reset ----------
+    const saveBtn = $('saveStudent');
+    const resetBtn = $('resetStudent');
+    const saveMsg = $('saveMsg');
+
+    function readForm(){
+      return {
+        lcid: $('lcid').value.trim(),
+        name: $('fullname').value.trim(),
+        year: $('year').value,
+        semester: $('semester').value,
+        gender: $('gender').value,
+        contact: $('contact').value.trim()
+      };
+    }
+
+    saveBtn.addEventListener('click', ()=> {
+      const data = readForm();
+      // simple validation: name + lcid required
+      if(!data.lcid){
+        saveMsg.style.display='block'; saveMsg.style.color='crimson'; saveMsg.innerText = 'Please enter LCID.';
+        return;
+      }
+      if(!data.name){
+        saveMsg.style.display='block'; saveMsg.style.color='crimson'; saveMsg.innerText = 'Please enter a name.';
+        return;
+      }
+      // persist
+      setLS('cc_student', data);
+      // Also update display area
+      $('displayName').innerText = data.name;
+      $('profileMeta').innerText = 'Student • ID: ' + (user.id || 'u123');
+      $('avatar').innerText = data.name.slice(0,1).toUpperCase();
+
+      saveMsg.style.display='block'; saveMsg.style.color='green'; saveMsg.innerText = 'Student details saved.';
+      setTimeout(()=>{ saveMsg.style.display='none'; }, 2200);
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      // reload stored student info (not clear)
+      const s = getLS('cc_student', {lcid:'',name:'',year:'',semester:'',gender:'',contact:''});
+      $('lcid').value = s.lcid || '';
+      $('fullname').value = s.name || user.name || '';
+      $('year').value = s.year || '';
+      $('semester').value = s.semester || '';
+      $('gender').value = s.gender || '';
+      $('contact').value = s.contact || '';
+      saveMsg.style.display='block'; saveMsg.style.color='var(--muted)'; saveMsg.innerText = 'Form reset to saved values.';
+      setTimeout(()=>{ saveMsg.style.display='none'; }, 1800);
+    });
+
+    // Keyboard-friendly quick save with Ctrl+S / Cmd+S
+    window.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
+        e.preventDefault();
+        saveBtn.click();
+      }
+    });
+
+    // Accessibility: announce current toggles to screen readers (live region)
+    // Not adding extra DOM nodes — toggle buttons include aria-checked attributes already.
+
+    // Done!
+  </script>
+</body>
+</html>
