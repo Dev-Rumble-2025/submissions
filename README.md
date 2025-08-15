@@ -3,8 +3,6 @@ npm install
 pip install -r "requirements.txt"
 python app.py
 
-
-
 Deliver a visually breathtaking platform with flawless responsiveness, smooth animations, and a delightful user experience that works seamlessly across desktop, tablet, and mobile. It must feel premium, load fast, and wow users at first glance.
 
 Core Features & Functionality
